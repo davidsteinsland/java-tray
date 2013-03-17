@@ -1,0 +1,69 @@
+<project name="tray" default="dist" basedir=".">
+	<description>
+        Java Tray
+    </description>
+	
+	<!-- set global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="lib" location="lib" />
+	<property name="build" location="build"/>
+	<property name="dist"  location="dist"/>
+	<property name="main-class" value="Tray"/>
+	<property name="splash-image" value="images/splash.gif"/>
+	
+	<property name="launch4j.dir" location="C:\launch4j\" />
+	
+	<path id="project.class.path">
+		<pathelement path="${java.class.path}/"/>
+		<pathelement location="${build}"/>
+	</path>
+	
+	<target name="init">
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="compile" depends="init"
+			description="Compile the source " >
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
+			<classpath refid="project.class.path"/>
+			<compilerarg value="-Xlint"/>
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile"
+			description="Generate the distribution (JAR)" >
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}"/>
+		
+		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${build}">
+			<fileset dir="${lib}">
+				<include name="**/*" />
+			</fileset>
+			
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}"/>
+				<attribute name="SplashScreen-Image" value="${splash-image}"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<!--<target name="exe" depends="dist">
+		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar
+		:${launch4j.dir}/lib/xstream.jar" />
+		<launch4j configFile="./launch4j.xml" />
+	</target>-->
+	
+	<target name="exe" depends="dist">
+		<exec executable="cmd" dir="${launch4j.dir}">
+			<arg line="/c launch4jc.exe ${basedir}/launch4j.xml" />
+		</exec>
+	</target>
+
+	<target name="clean"
+			description="clean up" >
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>
